@@ -72,7 +72,11 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.google_doc = False  # covered in cli
         self.ul_item_mark = '*'  # covered in cli
         self.emphasis_mark = '_'  # covered in cli
+        self.emphasis_mark_start = self.emphasis_mark
+        self.emphasis_mark_end = self.emphasis_mark
         self.strong_mark = '**'
+        self.strong_mark_start = self.strong_mark
+        self.strong_mark_end = self.strong_mark
         self.single_line_break = config.SINGLE_LINE_BREAK  # covered in cli
         self.use_automatic_links = config.USE_AUTOMATIC_LINKS  # covered in cli
         self.hide_strikethrough = False  # covered in cli
@@ -241,10 +245,11 @@ class HTML2Text(HTMLParser.HTMLParser):
             if strikethrough:
                 self.quiet += 1
             if italic:
-                self.o(self.emphasis_mark)
+                self.o(self.emphasis_mark_start)
                 self.drop_white_space += 1
             if bold:
-                self.o(self.strong_mark)
+                # Changed from strong_mark to strong_mark_start
+                self.o(self.strong_mark_start)
                 self.drop_white_space += 1
             if fixed:
                 self.o('`')
@@ -267,13 +272,13 @@ class HTML2Text(HTMLParser.HTMLParser):
                     # empty emphasis, drop it
                     self.drop_white_space -= 1
                 else:
-                    self.o(self.strong_mark)
+                    self.o(self.strong_mark_end)
             if italic:
                 if self.drop_white_space:
                     # empty emphasis, drop it
                     self.drop_white_space -= 1
                 else:
-                    self.o(self.emphasis_mark)
+                    self.o(self.emphasis_mark_end)
             # space is only allowed after *all* emphasis marks
             if (bold or italic) and not self.emphasis:
                 self.o(" ")
@@ -370,9 +375,9 @@ class HTML2Text(HTMLParser.HTMLParser):
                 self.p()
 
         if tag in ['em', 'i', 'u'] and not self.ignore_emphasis:
-            self.o(self.emphasis_mark)
+            self.o(self.emphasis_mark_start if start else self.emphasis_mark_end)
         if tag in ['strong', 'b'] and not self.ignore_emphasis:
-            self.o(self.strong_mark)
+            self.o(self.strong_mark_start if start else self.strong_mark_end)
         if tag in ['del', 'strike', 's']:
             if start:
                 self.o('~~')
