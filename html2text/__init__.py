@@ -77,6 +77,9 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.strong_mark = '**'
         self.strong_mark_start = self.strong_mark
         self.strong_mark_end = self.strong_mark
+        self.header_mark = '#'
+        self.header_mark_start = self.header_mark
+        self.header_mark_end = None
         self.single_line_break = config.SINGLE_LINE_BREAK  # covered in cli
         self.use_automatic_links = config.USE_AUTOMATIC_LINKS  # covered in cli
         self.hide_strikethrough = False  # covered in cli
@@ -324,14 +327,16 @@ class HTML2Text(HTMLParser.HTMLParser):
             self.p()
             if start:
                 self.inheader = True
-                self.o(hn(tag) * "#" + ' ')
+                self.o(hn(tag) * self.header_mark_start + ' ')
             else:
                 self.inheader = False
+                if self.header_mark_end:
+                    self.o(hn(tag) * self.header_mark_end + ' ')
                 return  # prevent redundant emphasis marks on headers
 
         if tag in ['p', 'div']:
             if self.google_doc:
-                if start and google_has_height(tag_style):
+                if start or google_has_height(tag_style):
                     self.p()
                 else:
                     self.soft_br()
