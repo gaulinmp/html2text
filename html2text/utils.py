@@ -31,7 +31,7 @@ def dumb_property_dict(style):
     """
     :returns: A hash of css attributes
     """
-    out = dict([(x.strip(), y.strip()) for x, y in
+    out = dict([(x.strip().lower(), y.strip().lower()) for x, y in
                 [z.split(':', 1) for z in
                  style.split(';') if ':' in z
                  ]
@@ -134,6 +134,10 @@ def google_text_emphasis(style):
         emphasis.append(style['font-style'])
     if 'font-weight' in style:
         emphasis.append(style['font-weight'])
+    if 'font' in style:
+        for _font_detail in ('bold', 'italic', 'underline'):
+            if _font_detail in style['font']:
+                emphasis.append(_font_detail)
 
     return emphasis
 
@@ -256,7 +260,7 @@ def reformat_table(lines, right_margin):
         cols = [x.rstrip() for x in line.split('|')]
         max_width = [max(len(x) + right_margin, old_len)
                      for x, old_len in zip(cols, max_width)]
-    
+
     # reformat
     new_lines = []
     for line in lines:
