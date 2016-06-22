@@ -135,7 +135,7 @@ def google_text_emphasis(style):
     if 'font-weight' in style:
         emphasis.append(style['font-weight'])
     if 'font' in style:
-        for _font_detail in ('bold', 'italic', 'underline'):
+        for _font_detail in ('bold', 'italic', 'underline', 'line-through'):
             if _font_detail in style['font']:
                 emphasis.append(_font_detail)
 
