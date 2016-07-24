@@ -75,7 +75,8 @@ simple indications of their function.
     - IMAGES_TO_ALT
     - IMAGES_WITH_SIZE
     - IGNORE_EMPHASIS
-    - BYPASS_TABLES
+    - BYPASS_TABLES format tables in HTML rather than Markdown
+    - IGNORE_TABLES ignore table-related tags (table, th, td, tr) while keeping rows
     - SINGLE_LINE_BREAK to use a single line break rather than two
     - UNIFIABLE is a dictionary which maps unicode abbreviations to ASCII
                 values
@@ -94,6 +95,7 @@ simple indications of their function.
     - MARK_CODE to wrap 'pre' blocks with [code]...[/code] tags
     - WRAP_LINKS to decide if links have to be wrapped during text wrapping (implies INLINE_LINKS = False)
     - DECODE_ERRORS to handle decoding errors. 'strict', 'ignore', 'replace' are the acceptable values.
+    - DEFAULT_IMAGE_ALT takes a string as value and is used whenever an image tag is missing an `alt` value. The default for this is an empty string '' to avoid backward breakage
 
 To alter any option the procedure is to create a parser with
 `parser = html2text.HTML2Text()` and to set the option on the parser.
@@ -120,6 +122,7 @@ Command line options
 |`-s`, `--hide-strikethrough`                            | Hide strike-through text. only relevant when `-g` is specified as well
 |`--escape-all`                                          | Escape all special characters.  Output is less readable, but avoids corner case formatting issues.
 | `--bypass-tables`                                      | Format tables in HTML rather than Markdown syntax.
+| `--ignore-tables`                                      | Ignore table-related tags (table, th, td, tr) while keeping rows.
 | `--single-line-break`                                  | Use a single line break after a block element rather than two.
 | `--reference-links`                                    | Use reference links instead of inline links to create markdown
 | `--ignore-emphasis`                                    | Ignore all emphasis formatting in the html.
@@ -132,3 +135,4 @@ Command line options
 | `--no-wrap-links`                                      | Do not wrap links during text wrapping. Implies `--reference-links`
 | `--decode-errors`=`HANDLER`                            | What to do in case an error is encountered. `ignore`, `strict`, `replace` etc.
 | `--pad-tables`                                         | Use padding to make tables look good.
+| `--default-image-alt`=`Image_Here`                     | Inserts the given `alt` text whever images are missing `alt` values.

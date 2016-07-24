@@ -38,6 +38,7 @@ IMAGES_WITH_SIZE = False
 IGNORE_EMPHASIS = False
 MARK_CODE = False
 DECODE_ERRORS = 'strict'
+DEFAULT_IMAGE_ALT = ''
 PAD_TABLES = False
 
 # Convert links with same href and text to <href> format if they are absolute links
@@ -119,7 +120,11 @@ UNIFIABLE = {
     'rlm': ''
 }
 
+# Format tables in HTML rather than Markdown syntax
 BYPASS_TABLES = False
+# Ignore table-related tags (table, th, td, tr) while keeping rows
+IGNORE_TABLES = False
+
 
 # Use a single line break after a block element rather an two line breaks.
 # NOTE: Requires body width setting to be 0.

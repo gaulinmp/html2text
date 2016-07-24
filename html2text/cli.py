@@ -24,6 +24,13 @@ def main():
         version='%prog ' + ".".join(map(str, __version__))
     )
     p.add_option(
+        "--default-image-alt",
+        dest="default_image_alt",
+        action="store",
+        type="str",
+        default=config.DEFAULT_IMAGE_ALT,
+        help="The default alt string for images with missing ones")
+    p.add_option(
         "--pad-tables",
         dest="pad_tables",
         action="store_true",
@@ -145,6 +152,13 @@ def main():
         dest="bypass_tables",
         default=config.BYPASS_TABLES,
         help="Format tables in HTML rather than Markdown syntax."
+    )
+    p.add_option(
+        "--ignore-tables",
+        action="store_true",
+        dest="ignore_tables",
+        default=config.IGNORE_TABLES,
+        help="Ignore table-related tags (table, th, td, tr) while keeping rows."
     )
     p.add_option(
         "--single-line-break",
@@ -270,6 +284,7 @@ def main():
     h.hide_strikethrough = options.hide_strikethrough
     h.escape_snob = options.escape_snob
     h.bypass_tables = options.bypass_tables
+    h.ignore_tables = options.ignore_tables
     h.single_line_break = options.single_line_break
     h.inline_links = options.inline_links
     h.unicode_snob = options.unicode_snob
@@ -279,5 +294,6 @@ def main():
     h.mark_code = options.mark_code
     h.wrap_links = options.wrap_links
     h.pad_tables = options.pad_tables
+    h.default_image_alt = options.default_image_alt
 
     wrapwrite(h.handle(data))

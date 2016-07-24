@@ -114,6 +114,10 @@ def generate_test(fn):
     func_args = {}
     base_fn = os.path.basename(fn).lower()
 
+    if base_fn.startswith('default_image_alt'):
+        module_args['default_image_alt'] = 'Image'
+        cmdline_args.append('--default-image-alt=Image')
+
     if base_fn.startswith('google'):
         module_args['google_doc'] = True
         cmdline_args.append('--googledoc')
@@ -133,6 +137,10 @@ def generate_test(fn):
     if base_fn.find('table_bypass') >= 0:
         module_args['bypass_tables'] = True
         cmdline_args.append('--bypass-tables')
+
+    if base_fn.startswith('table_ignore'):
+        module_args['ignore_tables'] = True
+        cmdline_args.append('--ignore-tables')
 
     if base_fn.startswith('bodywidth'):
         # module_args['unicode_snob'] = True
@@ -161,7 +169,7 @@ def generate_test(fn):
     if base_fn.startswith('no_inline_links'):
         module_args['inline_links'] = False
         cmdline_args.append('--reference-links')
-    
+
     if base_fn.startswith('no_wrap_links'):
         module_args['wrap_links'] = False
         cmdline_args.append('--no-wrap-links')

@@ -153,7 +153,7 @@ def google_fixed_width_font(style):
     font_family = ''
     if 'font-family' in style:
         font_family = style['font-family']
-    if 'Courier New' == font_family or 'Consolas' == font_family:
+    if 'courier new' == font_family or 'consolas' == font_family:
         return True
 
     return False
