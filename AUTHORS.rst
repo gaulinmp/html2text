@@ -20,7 +20,13 @@ The AUTHORS/Contributors are (and/or have been):
 * Etienne Millon <me@emillon.org>
 * John C F <gh: critiqjo>
 * Mikhail Melnik <by.zumzoom@gmail.com>
-
+* Andres Rey
+* Ciprian Miclaus
+* Toshihiro Kamiya <kamiya@mbj.nifty.com>
+* Matt Dennewitz <mattdennewitz@gmail.com>
+* Jonathan Sundqvist <sundqvist.jonathan@gmail.com>
+* Simon Meers <gh: DrMeers>
+* Kurt McKee <contactme@kurtmckee.org>
 
 Maintainer:
 

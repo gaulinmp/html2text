@@ -1,5 +1,7 @@
 import codecs
 import glob
+import html2text
+import logging
 import os
 import re
 import subprocess
@@ -9,12 +11,20 @@ if sys.version_info[:2] < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
-import logging
+
 
 logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
                     level=logging.DEBUG)
 
-import html2text
+
+def cleanup_eol(clean_str):
+    if os.name == 'nt' or sys.platform == 'cygwin':
+        # Fix the unwanted CR to CRCRLF replacement
+        # during text pipelining on Windows/cygwin
+        # on cygwin, os.name == 'posix', not nt
+        clean_str = re.sub(r'\r+', '\r', clean_str)
+        clean_str = clean_str.replace('\r\n', '\n')
+    return clean_str
 
 
 def test_module(fn, google_doc=False, **kwargs):
@@ -31,9 +41,9 @@ def test_module(fn, google_doc=False, **kwargs):
         setattr(h, k, v)
 
     result = get_baseline(fn)
-    inf = open(fn)
-    actual = h.handle(inf.read())
-    inf.close()
+    with open(fn) as inf:
+        actual = cleanup_eol(inf.read())
+        actual = h.handle(actual)
     return result, actual
 
 
@@ -56,11 +66,7 @@ def test_command(fn, *args):
 
     actual = out.decode('utf8')
 
-    if os.name == 'nt':
-        # Fix the unwanted CR to CRCRLF replacement
-        # during text pipelining on Windows/cygwin
-        actual = re.sub(r'\r+', '\r', actual)
-        actual = actual.replace('\r\n', '\n')
+    actual = cleanup_eol(actual)
 
     return result, actual
 
@@ -82,30 +88,62 @@ def get_baseline_name(fn):
 
 def get_baseline(fn):
     name = get_baseline_name(fn)
-    f = codecs.open(name, mode='r', encoding='utf8')
-    out = f.read()
-    f.close()
+    with codecs.open(name, mode='r', encoding='utf8') as f:
+        out = f.read()
+    out = cleanup_eol(out)
     return out
 
 
 class TestHTML2Text(unittest.TestCase):
-    pass
+
+    def test_html_escape(self):
+        self.assertEqual(
+            html2text.compat.html_escape('<pre>and then<div> & other tags'),
+            '&lt;pre&gt;and then&lt;div&gt; &amp; other tags'
+        )
+
+    def test_unescape(self):
+        self.assertEqual(
+            '<pre>and then<div> & other tags',
+            html2text.unescape(
+                '&lt;pre&gt;and then&lt;div&gt; &amp; other tags'
+            )
+        )
+
+    def _skip_certain_tags(self, h2t, tag, attrs, start):
+        if tag == 'b':
+            return True
+
+    def test_tag_callback(self):
+        h = html2text.HTML2Text()
+        h.tag_callback = self._skip_certain_tags
+        ret = h.handle(
+            'this is a <b>txt</b> and this is a'
+            ' <b class="skip">with text</b> and '
+            'some <i>italics</i> too.'
+        )
+        self.assertEqual(
+            ret,
+            'this is a txt and this is a'
+            ' with text and '
+            'some _italics_ too.\n\n'
+        )
 
 
 def generate_test(fn):
-    def test_mod(self):
+    def _test_mod(self):
         self.maxDiff = None
         result, actual = test_module(fn, **module_args)
         self.assertEqual(result, actual)
 
-    def test_cmd(self):
+    def _test_cmd(self):
         # Because there is no command-line option to control unicode_snob
         if 'unicode_snob' not in module_args:
             self.maxDiff = None
             result, actual = test_command(fn, *cmdline_args)
             self.assertEqual(result, actual)
 
-    def test_func(self):
+    def _test_func(self):
         result, actual = test_function(fn, **func_args)
         self.assertEqual(result, actual)
 
@@ -184,14 +222,19 @@ def generate_test(fn):
 
     if base_fn not in ['bodywidth_newline.html', 'abbr_tag.html']:
         test_func = None
+    else:
+        test_func = _test_func
 
     if base_fn == 'inplace_baseurl_substitution.html':
         module_args['baseurl'] = 'http://brettterpstra.com'
         module_args['body_width'] = 0
         # there is no way to specify baseurl in cli :(
         test_cmd = None
+    else:
+        test_cmd = _test_cmd
 
-    return test_mod, test_cmd, test_func
+    return _test_mod, test_cmd, test_func
+
 
 # Originally from http://stackoverflow.com/questions/32899/\
 #    how-to-generate-dynamic-parametrized-unit-tests-in-python

@@ -1,10 +1,38 @@
-xxxx.x.xx
+2018.9.1
+========
+----
+
+* Fix #188: Non-ASCII in title attribute causes encode error.
+* Feature #194: Add support for the <kbd> tag.
+* Feature #193: Add support for the <q> tag.
+
+
+2017.10.4
+==========
+----
+
+* Fix #157: Fix images link with div wrap
+* Fix #55: Fix error when empty title tags
+* Fix #160: The html2text tests are failing on Windows and on Cygwin due to differences in eol handling between windows/*nix
+* Feature #164: Housekeeping: Add flake8 to the travis build, cleanup existing flake8 violations, add py3.6 and pypy3 to the travis build
+* Fix #109: Fix for unexpanded &lt; &gt; &amp;
+* Fix #143: Fix line wrapping for the lines starting with bold
+* Adds support for numeric bold text indication in `font-weight`,
+  as used by Google (and presumably others.)
+* Fix #173 and #142: Stripping whitespace in crucial markdown and adding whitespace as necessary
+* Don't drop any cell data on tables uneven row lengths (e.g. colspan in use)
+
+
+2016.9.19
 =========
 ----
 
 * Default image alt text option created and set to a default of empty string "" to maintain backward compatibility
 * Fix #136: --default-image-alt now takes a string as argument
 * Fix #113: Stop changing quiet levels on \/script tags.
+* Merge #126: Fix deprecation warning on py3 due to html.escape
+* Fix #145: Running test suite on Travis CI for Python 2.6.
+
 
 2016.5.29
 =========
@@ -121,7 +149,7 @@ xxxx.x.xx
 ==========
 ----
 
-* Feature #49: Added a images_to_alt option to discard images and keep only their alt.
+* Feature #49: Added an images_to_alt option to discard images and keep only their alt.
 * Feature #50: Protect links, surrounding them with angle brackets to avoid breaking...
 * Feature: Add ``setup.cfg`` file.
 
