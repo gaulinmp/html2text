@@ -72,6 +72,7 @@ simple indications of their function.
     - GOOGLE_LIST_INDENT no of pixels to indent nested lists
     - IGNORE_ANCHORS
     - IGNORE_IMAGES
+    - IMAGES_AS_HTML always generate HTML tags for images; preserves `height`, `width`, `alt` if possible.
     - IMAGES_TO_ALT
     - IMAGES_WITH_SIZE
     - IGNORE_EMPHASIS
@@ -81,7 +82,6 @@ simple indications of their function.
     - UNIFIABLE is a dictionary which maps unicode abbreviations to ASCII
                 values
     - RE_SPACE for finding space-only lines
-    - RE_UNESCAPE for finding html entities like &nbsp;
     - RE_ORDERED_LIST_MATCHER for matching ordered lists in MD
     - RE_UNORDERED_LIST_MATCHER for matching unordered list matcher in MD
     - RE_MD_CHARS_MATCHER for matching Md \,[,],( and )
@@ -94,10 +94,16 @@ simple indications of their function.
     - USE_AUTOMATIC_LINKS to convert <a href='http://xyz'>http://xyz</a> to <http://xyz>
     - MARK_CODE to wrap 'pre' blocks with [code]...[/code] tags
     - WRAP_LINKS to decide if links have to be wrapped during text wrapping (implies INLINE_LINKS = False)
+    - WRAP_LIST_ITEMS to decide if list items have to be wrapped during text wrapping
     - DECODE_ERRORS to handle decoding errors. 'strict', 'ignore', 'replace' are the acceptable values.
     - DEFAULT_IMAGE_ALT takes a string as value and is used whenever an image tag is missing an `alt` value. The default for this is an empty string '' to avoid backward breakage
     - OPEN_QUOTE is the character used to open a quote when replacing the `<q>` tag. It defaults to `"`.
     - CLOSE_QUOTE is the character used to close a quote when replacing the `<q>` tag. It defaults to `"`.
+
+Options that are not in the config.py file:
+
+    - emphasis_mark is the character used when replacing the `<em>` tag. It defaults to `_`.
+    - strong_mark is the characer used when replacing the `<strong>` tag. It defaults to `**`.
 
 To alter any option the procedure is to create a parser with
 `parser = html2text.HTML2Text()` and to set the option on the parser.
@@ -115,6 +121,7 @@ Command line options
 | `--ignore-links`                                       | Do not include any formatting for links
 |`--protect-links`                                       | Protect links from line breaks surrounding them "+" with angle brackets
 |`--ignore-images`                                       | Do not include any formatting for images
+|`--images-as-html`                                      | Always write image tags as raw html; preserves "height", "width" and "alt" if possible.
 |`--images-to-alt`                                       | Discard image data, only keep alt text
 |`--images-with-size`                                    | Write image tags with height and width attrs as raw html to retain dimensions
 |`-g`, `--google-doc`                                    | Convert an html-exported Google Document
@@ -130,11 +137,12 @@ Command line options
 | `--ignore-emphasis`                                    | Ignore all emphasis formatting in the html.
 | `-e`, `--asterisk-emphasis`                            | Use asterisk rather than underscore to emphasize text
 | `--unicode-snob`                                       | Use unicode throughout instead of ASCII
-| `--no-automatic-links`                                 | Do not use automatic links like <http://google.com>
+| `--no-automatic-links`                                 | Do not use automatic links like <https://www.google.com/>
 | `--no-skip-internal-links`                             | Turn off skipping of internal links
 | `--links-after-para`                                   | Put the links after the paragraph and not at end of document
 | `--mark-code`                                          | Mark code with [code]...[/code] blocks
 | `--no-wrap-links`                                      | Do not wrap links during text wrapping. Implies `--reference-links`
+| `--wrap-list-items`                                    | Wrap list items during text wrapping.
 | `--decode-errors`=`HANDLER`                            | What to do in case an error is encountered. `ignore`, `strict`, `replace` etc.
 | `--pad-tables`                                         | Use padding to make tables look good.
 | `--default-image-alt`=`Image_Here`                     | Inserts the given `alt` text whenever images are missing `alt` values.

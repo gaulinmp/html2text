@@ -1,4 +1,54 @@
-2018.9.1
+UNRELEASED
+==========
+----
+
+* Feature #318: Make padded tables more similar to pandoc's pipe_tables.
+
+2020.1.16
+=========
+----
+
+* Add type annotations.
+* Add support for Python 3.8.
+* Performance improvements when ``wrap_links`` is ``False`` (the default).
+* Configure setuptools using setup.cfg.
+
+
+2019.9.26
+=========
+----
+
+* Fix long blockquotes wrapping.
+* Remove the trailing whitespaces that were added after wrapping list items & blockquotes.
+* Remove support for Python ≤ 3.4. Now requires Python 3.5+.
+* Fix memory leak when processing a document containing a ``<abbr>`` tag.
+* Fix ``AttributeError`` when reading text from stdin.
+* Fix ``UnicodeEncodeError`` when writing output to stdout.
+
+
+2019.8.11
+=========
+----
+
+* Add support for wrapping list items.
+* Fix #201: handle &lrm;/&rlm; marks mid-text within stressed tags or right after stressed tags.
+* Feature #213: ``images_as_html`` config option to always generate an ``img`` html tag. preserves "height", "width" and "alt" if possible.
+* Remove support for end-of-life Pythons. Now requires Python 2.7 or 3.4+.
+* Remove support for retrieving HTML over the network.
+* Add ``__main__.py`` module to allow running the CLI using ``python -m html2text ...``.
+* Fix #238: correct spacing when a HTML entity follows a non-stressed tags which follow a stressed tag.
+* Remove unused or deprecated:
+
+  * ``html2text.compat.escape()``
+  * ``html2text.config.RE_UNESCAPE``
+  * ``html2text.HTML2Text.replaceEntities()``
+  * ``html2text.HTML2Text.unescape()``
+  * ``html2text.unescape()``
+
+* Fix #208: handle LEFT-TO-RIGHT MARK after a stressed tag.
+
+
+2018.1.9
 ========
 ----
 
@@ -17,7 +67,7 @@
 * Feature #164: Housekeeping: Add flake8 to the travis build, cleanup existing flake8 violations, add py3.6 and pypy3 to the travis build
 * Fix #109: Fix for unexpanded &lt; &gt; &amp;
 * Fix #143: Fix line wrapping for the lines starting with bold
-* Adds support for numeric bold text indication in `font-weight`,
+* Adds support for numeric bold text indication in ``font-weight``,
   as used by Google (and presumably others.)
 * Fix #173 and #142: Stripping whitespace in crucial markdown and adding whitespace as necessary
 * Don't drop any cell data on tables uneven row lengths (e.g. colspan in use)
@@ -68,8 +118,8 @@
 =========
 ----
 
-* Fix #38: Long links wrapping controlled by `--no-wrap-links`.
-* Note: `--no-wrap-links` implies `--reference-links`
+* Fix #38: Long links wrapping controlled by ``--no-wrap-links``.
+* Note: ``--no-wrap-links`` implies ``--reference-links``
 * Feature #83: Add callback-on-tag.
 * Fix #87: Decode errors can be handled via command line.
 * Feature #95: Docs, decode errors spelling mistake.
@@ -131,7 +181,7 @@
 =========
 ----
 
-* Fix #38: Anchor tags with empty text or with `<img>` tags inside are no longer stripped.
+* Fix #38: Anchor tags with empty text or with ``<img>`` tags inside are no longer stripped.
 
 
 2014.12.29
@@ -158,8 +208,8 @@
 =========
 ----
 
-* Feature: Update `README.md` with usage examples.
-* Fix #35: Remove `py_modules` from `setup.py`.
+* Feature: Update ``README.md`` with usage examples.
+* Fix #35: Remove ``py_modules`` from ``setup.py``.
 * Fix #36: Excludes tests from being installed as a separate module.
 * Fix #37: Don't hardcode the path to the installed binary.
 * Fix: Readme typo in running cli.
@@ -175,7 +225,7 @@
 ----
 
 * Feature #29, #27: Add simple table support with bypass option.
-* Fix #20: Replace project website with: http://alir3z4.github.io/html2text/ .
+* Fix #20: Replace project website with: https://alir3z4.github.io/html2text/ .
 
 
 2014.9.8

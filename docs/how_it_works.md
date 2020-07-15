@@ -26,6 +26,7 @@ Used to provide various configuration settings to the converter. They are as fol
     - GOOGLE_LIST_INDENT no of pixels to indent nested lists
     - IGNORE_ANCHORS
     - IGNORE_IMAGES
+    - IMAGES_AS_HTML always generate HTML tags for images; preserves `height`, `width`, `alt` if possible.
     - IMAGES_TO_ALT
     - IMAGES_WITH_SIZE
     - IGNORE_EMPHASIS
@@ -35,7 +36,6 @@ Used to provide various configuration settings to the converter. They are as fol
     - UNIFIABLE is a dictionary which maps unicode abbreviations to ASCII
                 values
     - RE_SPACE for finding space-only lines
-    - RE_UNESCAPE for finding html entities like &nbsp;
     - RE_ORDERED_LIST_MATCHER for matching ordered lists in MD
     - RE_UNORDERED_LIST_MATCHER for matching unordered list matcher in MD
     - RE_MD_CHARS_MATCHER for matching Md \,[,],( and )
@@ -65,8 +65,6 @@ Some functions are:
     - google_fixed_width_font   :check for fixed width font
     - list_numbering_start      :extract numbering from list elem attrs
     - skipwrap                  :skip wrap for give para or not?
-    - wrapwrite                 :write to buffer
-    - wrap_read                 :read from buffer
     - escape_md                 :escape md sensitive within other md
     - escape_md_section         :escape md sensitive across whole doc
 
@@ -86,6 +84,7 @@ Command line interface for the code.
 |`--ignore-images`                                       | Do not include any formatting for images
 |`--images-to-alt`                                       | Discard image data, only keep alt text
 |`--images-with-size`                                    | Write image tags with height and width attrs as raw html to retain dimensions
+|`--images-as-html`                                      | Always write image tags as raw html; preserves "height", "width" and "alt" if possible.
 |`-g`, `--google-doc`                                    | Convert an html-exported Google Document
 |`-d`, `--dash-unordered-list`                           | Use a dash rather than a star for unordered list items
 |`-b` `BODY_WIDTH`, `--body-width`=`BODY_WIDTH`          | Number of characters per output line, `0` for no wrap
@@ -128,11 +127,8 @@ The class defines methods:
     - soft_br
     - o
     - handle_data
-    - unknown_decl
     - charref
     - entityref
-    - replaceEntities
-    - unescape
     - google_nest_count
     - optwrap
 

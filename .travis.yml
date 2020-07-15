@@ -1,27 +1,31 @@
 language: python
-python:
-  - "2.6"
-  - "2.7"
-  - "pypy"
-  - "pypy3"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-before_install:
-  # Python 3.2 needs setuptools < 30 - support for Py3.2 was dropped after that version
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.2' || $TRAVIS_PYTHON_VERSION == 'pypy3' ]]; then pip install -U 'setuptools<30'; fi
+cache: pip
+
+matrix:
+  include:
+    - python: "3.7"
+      env: TOXENV=black
+    - python: "3.7"
+      env: TOXENV=flake8
+    - python: "3.7"
+      env: TOXENV=mypy
+    - python: "3.7"
+      env: TOXENV=isort
+    - python: "3.5"
+      env: TOXENV=py35
+    - python: "3.6"
+      env: TOXENV=py36
+    - python: "3.7"
+      env: TOXENV=py37
+    - python: 3.8
+      env: TOXENV=py38
+    - python: "pypy3"
+      env: TOXENV=pypy3
+
 install:
-    - pip install coveralls==0.5
-before_script:
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi
-  # flake8 doesn't support Python 2.6
-  - if [[ $TRAVIS_PYTHON_VERSION != '2.6' ]]; then pip install flake8==3.3.0;flake8 .; fi
-  - export COVERAGE_PROCESS_START=$PWD/.coveragerc
+  - pip install tox
 script:
-  - PYTHONPATH=$PYTHONPATH:. coverage run --source=html2text --rcfile=.coveragerc setup.py test -v
-  - coverage combine
-  - coverage report
+  - tox
 after_success:
-    coveralls --rcfile=.coveragerc
+  - pip install coveralls
+  - coveralls

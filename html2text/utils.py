@@ -1,46 +1,34 @@
-import sys
+import html.entities
+from typing import Dict, List, Optional
 
-from html2text import config
-from html2text.compat import htmlentitydefs
+from . import config
 
-
-def name2cp(k):
-    """Return sname to codepoint"""
-    if k == 'apos':
-        return ord("'")
-    return htmlentitydefs.name2codepoint[k]
-
-
-unifiable_n = {}
-for k in config.UNIFIABLE.keys():
-    unifiable_n[name2cp(k)] = config.UNIFIABLE[k]
+unifiable_n = {
+    html.entities.name2codepoint[k]: v
+    for k, v in config.UNIFIABLE.items()
+    if k != "nbsp"
+}
 
 
-def hn(tag):
-    if tag[0] == 'h' and len(tag) == 2:
-        try:
-            n = int(tag[1])
-            if n in range(1, 10):  # pragma: no branch
-                return n
-        except ValueError:
-            return 0
+def hn(tag: str) -> int:
+    if tag[0] == "h" and len(tag) == 2:
+        n = tag[1]
+        if "0" < n <= "9":
+            return int(n)
+    return 0
 
 
-def dumb_property_dict(style):
+def dumb_property_dict(style: str) -> Dict[str, str]:
     """
     :returns: A hash of css attributes
     """
-    out = dict([(x.strip().lower(), y.strip().lower()) for x, y in
-                [z.split(':', 1) for z in
-                 style.split(';') if ':' in z
-                 ]
-                ]
-               )
-
-    return out
+    return {
+        x.strip().lower(): y.strip().lower()
+        for x, y in [z.split(":", 1) for z in style.split(";") if ":" in z]
+    }
 
 
-def dumb_css_parser(data):
+def dumb_css_parser(data: str) -> Dict[str, Dict[str, str]]:
     """
     :type data: str
 
@@ -49,25 +37,28 @@ def dumb_css_parser(data):
     :rtype: dict
     """
     # remove @import sentences
-    data += ';'
-    importIndex = data.find('@import')
+    data += ";"
+    importIndex = data.find("@import")
     while importIndex != -1:
-        data = data[0:importIndex] + data[data.find(';', importIndex) + 1:]
-        importIndex = data.find('@import')
+        data = data[0:importIndex] + data[data.find(";", importIndex) + 1 :]
+        importIndex = data.find("@import")
 
     # parse the css. reverted from dictionary comprehension in order to
     # support older pythons
-    elements = [x.split('{') for x in data.split('}') if '{' in x.strip()]
+    pairs = [x.split("{") for x in data.split("}") if "{" in x.strip()]
     try:
-        elements = dict([(a.strip(), dumb_property_dict(b))
-                         for a, b in elements])
-    except ValueError:  # pragma: no cover
+        elements = {a.strip(): dumb_property_dict(b) for a, b in pairs}
+    except ValueError:
         elements = {}  # not that important
 
     return elements
 
 
-def element_style(attrs, style_def, parent_style):
+def element_style(
+    attrs: Dict[str, Optional[str]],
+    style_def: Dict[str, Dict[str, str]],
+    parent_style: Dict[str, str],
+) -> Dict[str, str]:
     """
     :type attrs: dict
     :type style_def: dict
@@ -77,18 +68,20 @@ def element_style(attrs, style_def, parent_style):
     :rtype: dict
     """
     style = parent_style.copy()
-    if 'class' in attrs:
-        for css_class in attrs['class'].split():
-            css_style = style_def.get('.' + css_class, {})
+    if "class" in attrs:
+        assert attrs["class"] is not None
+        for css_class in attrs["class"].split():
+            css_style = style_def.get("." + css_class, {})
             style.update(css_style)
-    if 'style' in attrs:
-        immediate_style = dumb_property_dict(attrs['style'])
+    if "style" in attrs:
+        assert attrs["style"] is not None
+        immediate_style = dumb_property_dict(attrs["style"])
         style.update(immediate_style)
 
     return style
 
 
-def google_list_style(style):
+def google_list_style(style: Dict[str, str]) -> str:
     """
     Finds out whether this is an ordered or unordered list
 
@@ -96,15 +89,15 @@ def google_list_style(style):
 
     :rtype: str
     """
-    if 'list-style-type' in style:
-        list_style = style['list-style-type']
-        if list_style in ['disc', 'circle', 'square', 'none']:
-            return 'ul'
+    if "list-style-type" in style:
+        list_style = style["list-style-type"]
+        if list_style in ["disc", "circle", "square", "none"]:
+            return "ul"
 
-    return 'ol'
+    return "ol"
 
 
-def google_has_height(style):
+def google_has_height(style: Dict[str, str]) -> bool:
     """
     Check if the style of the element has the 'height' attribute
     explicitly defined
@@ -113,13 +106,10 @@ def google_has_height(style):
 
     :rtype: bool
     """
-    if 'height' in style:
-        return True
-
-    return False
+    return "height" in style
 
 
-def google_text_emphasis(style):
+def google_text_emphasis(style: Dict[str, str]) -> List[str]:
     """
     :type style: dict
 
@@ -141,7 +131,7 @@ def google_text_emphasis(style):
     return emphasis
 
 
-def google_fixed_width_font(style):
+def google_fixed_width_font(style: Dict[str, str]) -> bool:
     """
     Check if the css of the current element defines a fixed width font
 
@@ -149,16 +139,13 @@ def google_fixed_width_font(style):
 
     :rtype: bool
     """
-    font_family = ''
-    if 'font-family' in style:
-        font_family = style['font-family']
-    if 'courier new' == font_family or 'consolas' == font_family:
-        return True
-
-    return False
+    font_family = ""
+    if "font-family" in style:
+        font_family = style["font-family"]
+    return "courier new" == font_family or "consolas" == font_family
 
 
-def list_numbering_start(attrs):
+def list_numbering_start(attrs: Dict[str, Optional[str]]) -> int:
     """
     Extract numbering from list element attributes
 
@@ -166,23 +153,24 @@ def list_numbering_start(attrs):
 
     :rtype: int or None
     """
-    if 'start' in attrs:
+    if "start" in attrs:
+        assert attrs["start"] is not None
         try:
-            return int(attrs['start']) - 1
+            return int(attrs["start"]) - 1
         except ValueError:
             pass
 
     return 0
 
 
-def skipwrap(para, wrap_links):
+def skipwrap(para: str, wrap_links: bool, wrap_list_items: bool) -> bool:
     # If it appears to contain a link
     # don't wrap
-    if (len(config.RE_LINK.findall(para)) > 0) and not wrap_links:
+    if not wrap_links and config.RE_LINK.search(para):
         return True
     # If the text begins with four spaces or one tab, it's a code block;
     # don't wrap
-    if para[0:4] == '    ' or para[0] == '\t':
+    if para[0:4] == "    " or para[0] == "\t":
         return True
 
     # If the text begins with only two "--", possibly preceded by
@@ -194,38 +182,19 @@ def skipwrap(para, wrap_links):
     # I'm not sure what this is for; I thought it was to detect lists,
     # but there's a <br>-inside-<span> case in one of the tests that
     # also depends upon it.
-    if stripped[0:1] in ('-', '*') and not stripped[0:2] == '**':
-        return True
+    if stripped[0:1] in ("-", "*") and not stripped[0:2] == "**":
+        return not wrap_list_items
 
     # If the text begins with a single -, *, or +, followed by a space,
     # or an integer, followed by a ., followed by a space (in either
     # case optionally proceeded by whitespace), it's a list; don't wrap.
-    if config.RE_ORDERED_LIST_MATCHER.match(stripped) or \
-            config.RE_UNORDERED_LIST_MATCHER.match(stripped):
-        return True
-
-    return False
-
-
-def wrapwrite(text):
-    text = text.encode('utf-8')
-    try:  # Python3
-        sys.stdout.buffer.write(text)
-    except AttributeError:
-        sys.stdout.write(text)
+    return bool(
+        config.RE_ORDERED_LIST_MATCHER.match(stripped)
+        or config.RE_UNORDERED_LIST_MATCHER.match(stripped)
+    )
 
 
-def wrap_read():  # pragma: no cover
-    """
-    :rtype: str
-    """
-    try:
-        return sys.stdin.read()
-    except AttributeError:
-        return sys.stdin.buffer.read()
-
-
-def escape_md(text):
+def escape_md(text: str) -> str:
     """
     Escapes markdown-sensitive characters within other markdown
     constructs.
@@ -233,7 +202,7 @@ def escape_md(text):
     return config.RE_MD_CHARS_MATCHER.sub(r"\\\1", text)
 
 
-def escape_md_section(text, snob=False):
+def escape_md_section(text: str, snob: bool = False) -> str:
     """
     Escapes markdown-sensitive characters across whole document sections.
     """
@@ -249,68 +218,71 @@ def escape_md_section(text, snob=False):
     return text
 
 
-def reformat_table(lines, right_margin):
+def reformat_table(lines: List[str], right_margin: int) -> List[str]:
     """
     Given the lines of a table
     padds the cells and returns the new lines
     """
     # find the maximum width of the columns
-    max_width = [len(x.rstrip()) + right_margin for x in lines[0].split('|')]
+    max_width = [len(x.rstrip()) + right_margin for x in lines[0].split("|")]
     max_cols = len(max_width)
     for line in lines:
-        cols = [x.rstrip() for x in line.split('|')]
+        cols = [x.rstrip() for x in line.split("|")]
         num_cols = len(cols)
 
         # don't drop any data if colspan attributes result in unequal lengths
         if num_cols < max_cols:
-            cols += [''] * (max_cols - num_cols)
+            cols += [""] * (max_cols - num_cols)
         elif max_cols < num_cols:
-            max_width += [
-                len(x) + right_margin for x in
-                cols[-(num_cols - max_cols):]
-            ]
+            max_width += [len(x) + right_margin for x in cols[-(num_cols - max_cols) :]]
             max_cols = num_cols
 
-        max_width = [max(len(x) + right_margin, old_len)
-                     for x, old_len in zip(cols, max_width)]
+        max_width = [
+            max(len(x) + right_margin, old_len) for x, old_len in zip(cols, max_width)
+        ]
 
     # reformat
     new_lines = []
     for line in lines:
-        cols = [x.rstrip() for x in line.split('|')]
-        if set(line.strip()) == set('-|'):
-            filler = '-'
-            new_cols = [x.rstrip() + (filler * (M - len(x.rstrip())))
-                        for x, M in zip(cols, max_width)]
+        cols = [x.rstrip() for x in line.split("|")]
+        if set(line.strip()) == set("-|"):
+            filler = "-"
+            new_cols = [
+                x.rstrip() + (filler * (M - len(x.rstrip())))
+                for x, M in zip(cols, max_width)
+            ]
+            new_lines.append("|-" + "|".join(new_cols) + "|")
         else:
-            filler = ' '
-            new_cols = [x.rstrip() + (filler * (M - len(x.rstrip())))
-                        for x, M in zip(cols, max_width)]
-        new_lines.append('|'.join(new_cols))
+            filler = " "
+            new_cols = [
+                x.rstrip() + (filler * (M - len(x.rstrip())))
+                for x, M in zip(cols, max_width)
+            ]
+            new_lines.append("| " + "|".join(new_cols) + "|")
     return new_lines
 
 
-def pad_tables_in_text(text, right_margin=1):
+def pad_tables_in_text(text: str, right_margin: int = 1) -> str:
     """
     Provide padding for tables in the text
     """
-    lines = text.split('\n')
-    table_buffer, table_started = [], False
+    lines = text.split("\n")
+    table_buffer = []  # type: List[str]
+    table_started = False
     new_lines = []
     for line in lines:
         # Toggle table started
-        if (config.TABLE_MARKER_FOR_PAD in line):
+        if config.TABLE_MARKER_FOR_PAD in line:
             table_started = not table_started
             if not table_started:
                 table = reformat_table(table_buffer, right_margin)
                 new_lines.extend(table)
                 table_buffer = []
-                new_lines.append('')
+                new_lines.append("")
             continue
         # Process lines
         if table_started:
             table_buffer.append(line)
         else:
             new_lines.append(line)
-    new_text = '\n'.join(new_lines)
-    return new_text
+    return "\n".join(new_lines)
