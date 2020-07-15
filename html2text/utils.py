@@ -127,15 +127,15 @@ def google_text_emphasis(style):
     :rtype: list
     """
     emphasis = []
-    if 'text-decoration' in style:
-        emphasis.append(style['text-decoration'])
-    if 'font-style' in style:
-        emphasis.append(style['font-style'])
-    if 'font-weight' in style:
-        emphasis.append(style['font-weight'])
-    if 'font' in style:
-        for _font_detail in ('bold', 'italic', 'underline', 'line-through'):
-            if _font_detail in style['font']:
+    if "text-decoration" in style:
+        emphasis.append(style["text-decoration"])
+    if "font-style" in style:
+        emphasis.append(style["font-style"])
+    if "font-weight" in style:
+        emphasis.append(style["font-weight"])
+    if "font" in style:
+        for _font_detail in ("bold", "italic", "underline", "line-through"):
+            if _font_detail in style["font"]:
                 emphasis.append(_font_detail)
 
     return emphasis

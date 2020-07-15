@@ -78,14 +78,14 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.bypass_tables = config.BYPASS_TABLES  # covered in cli
         self.ignore_tables = config.IGNORE_TABLES  # covered in cli
         self.google_doc = False  # covered in cli
-        self.ul_item_mark = '*'  # covered in cli
-        self.emphasis_mark = '_'  # covered in cli
+        self.ul_item_mark = "*"  # covered in cli
+        self.emphasis_mark = "_"  # covered in cli
+        self.strong_mark = "**"
         self.emphasis_mark_start = self.emphasis_mark
         self.emphasis_mark_end = self.emphasis_mark
-        self.strong_mark = '**'
         self.strong_mark_start = self.strong_mark
         self.strong_mark_end = self.strong_mark
-        self.header_mark = '#'
+        self.header_mark = "#"
         self.header_mark_start = self.header_mark
         self.header_mark_end = None
         self.single_line_break = config.SINGLE_LINE_BREAK  # covered in cli
@@ -341,11 +341,11 @@ class HTML2Text(HTMLParser.HTMLParser):
             self.p()
             if start:
                 self.inheader = True
-                self.o(hn(tag) * self.header_mark_start + ' ')
+                self.o(hn(tag) * self.header_mark_start + " ")
             else:
                 self.inheader = False
                 if self.header_mark_end:
-                    self.o(hn(tag) * self.header_mark_end + ' ')
+                    self.o(hn(tag) * self.header_mark_end + " ")
                 return  # prevent redundant emphasis marks on headers
 
         if tag in ['p', 'div']:
@@ -399,16 +399,16 @@ class HTML2Text(HTMLParser.HTMLParser):
             return (self.preceding_data
                     and re.match(r'[^\s]', self.preceding_data[-1]))
 
-        if tag in ['em', 'i', 'u'] and not self.ignore_emphasis:
-            emphasis = ' ' if no_preceding_space(self) else ''
+        if tag in ["em", "i", "u"] and not self.ignore_emphasis:
+            emphasis = " " if no_preceding_space(self) else ""
             emphasis += self.emphasis_mark_start if start else self.emphasis_mark_end
 
             self.o(emphasis)
             if start:
                 self.stressed = True
 
-        if tag in ['strong', 'b'] and not self.ignore_emphasis:
-            strong = ' ' if no_preceding_space(self) else ''
+        if tag in ["strong", "b"] and not self.ignore_emphasis:
+            strong = " " if no_preceding_space(self) else ""
             strong += self.strong_mark_start if start else self.strong_mark_end
 
             self.o(strong)
